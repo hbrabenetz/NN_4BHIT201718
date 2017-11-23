@@ -11,6 +11,9 @@ public:
 	double LearnRate;
 	activationMethodchoosen act_method;
 	std::tuple<double, double, double, double> normalizationParam;
+	double A_max, A_min, new_A_max, new_A_min;
+	void   norm  (double& p_v_orig); // Normalization function
+	double denorm(double& p_v_norm); // Denormalization function
 
 	void(*p_activationfunction)(double * val);
 
@@ -18,12 +21,14 @@ public:
 	double ** err;
 	double *** wij;
 	double * tru; // true Values
+	double * den; // denormalized result of calc, only returned on demand
 
 	int Nlay;
 	int Nnod;
 	int Nwij;
 
-	double calc();
+	void calc();
+	double* getCalcRes();
 
 	~N();
 

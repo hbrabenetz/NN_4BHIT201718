@@ -23,6 +23,8 @@ double normalizationfunction1(double p_v_orig,
 	double new_A_max = 1.0,
 	double new_A_min = 0.0);
 
+
+
 double denormalizationfunction1(double p_v_orig,
 	double A_max = 1.0,//  6000.0;
 	double A_min = 0.0,// 500.0;

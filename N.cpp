@@ -37,14 +37,30 @@ double denormalizationfunction1(double p_v_norm,
 }
 
 
+void N::norm(double& p_v_orig) { //, double& A_max, double& A_min, double& new_A_max, double& new_A_min) {
+	p_v_orig = (p_v_orig - A_min) * (new_A_max - new_A_min) / (A_max - A_min) + new_A_min;
+}
+
+
+double N::denorm(double& p_v_norm) { //, double& A_max, double& A_min, double& new_A_max, double& new_A_min) {
+	return (p_v_norm - new_A_min) * (A_max - A_min) / (new_A_max - new_A_min) + A_min;
+}
+
+
 N::N(std::initializer_list<int>& topol, double LearnRate, activationMethodchoosen act_method_received, std::tuple<double, double, double, double> normParam):
-	top{ topol }, LearnRate{ LearnRate }, act_method{ act_method_received }, normalizationParam { normParam }
+	top{ topol }, LearnRate{ LearnRate }, act_method{ act_method_received }, normalizationParam{ normParam }
 {
+
+	A_max = get<0>(normalizationParam);
+	A_min = get<1>(normalizationParam);
+	new_A_max = get<2>(normalizationParam);
+	new_A_min = get<3>(normalizationParam);
 
 	if (act_method == activationMethodchoosen::eins_durch_ehoch)
 		p_activationfunction = eins_durch_ehoch;
 
 	Nnod = 0;
+	using std::cout;
 	cout << "topologie ";
 	for (auto e : top) {
 		cout << e << " ";
@@ -103,22 +119,36 @@ N::N(std::initializer_list<int>& topol, double LearnRate, activationMethodchoose
 	for (int i = 0; i < top[Nlay - 1]; ++i) // lets initialize them just to avoid breakdowns
 		tru[i] = 0.0;
 
+	den = new double[top[Nlay - 1]];
+	for (int i = 0; i < top[Nlay - 1]; ++i)
+		den[i] = 0.0;
+
 	cout << "Neuronal Network is up and ready" << endl;
 
 }
 
-double N::calc() {
+
+double* N::getCalcRes() {
+
+	for (int i = 0; i < top[Nlay - 1]; ++i)
+		den[i] = denorm(nod[Nlay - 1][i]);
+
+	return den;
+}
+
+
+void N::calc() {
 
 	//
 	// Forward calculation
 	//
 
 	// 
-	// here I can normalize the input layer
+	// here I normalize the input layer
 	//
 
-	//for (int n = 0; n < top[0]; ++n)
-		// 
+	for (int n = 0; n < top[0]; ++n)
+		norm(nod[0][n]);
 
 	/** Starts with layer 1 since layer 0 needs input but no calculation */
 	for (int nlay = 1; nlay < Nlay; ++nlay)
@@ -195,7 +225,7 @@ double N::calc() {
 
 		}
 
-	return nod[Nlay - 1][0]; // könnte auch tuple returnen usw
+	return; // 0; // denorm(nod[Nlay - 1][0]); // könnte auch tuple returnen usw
 }
 
 
