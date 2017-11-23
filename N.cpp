@@ -1,7 +1,7 @@
 
 #include "N.h"
 
-inline void eins_durch_ehoch(double * p_val) {
+void eins_durch_ehoch(double * p_val) {
 
 	// http://www3.cs.stonybrook.edu/~cse634/ch6NN.pdf
 	// output = 1 / (1+e^(-Înput)) another activation function
@@ -13,8 +13,32 @@ inline void eins_durch_ehoch(double * p_val) {
 }
 
 
-N::N(std::initializer_list<int>& topol, double LearnRate, activationMethodchoosen act_method_received):
-	top{ topol }, LearnRate{ LearnRate }, act_method{ act_method_received }
+double normalizationfunction1(double p_v_orig,
+
+	double A_max,//  6000.0;
+	double A_min,// 500.0;
+
+	double new_A_max, // 1.0,
+	double new_A_min) {// 0.0 // -1.0;
+
+	return (p_v_orig - A_min) * (new_A_max - new_A_min) / (A_max - A_min) + new_A_min; // v_norm; // 0.0;
+}
+
+
+double denormalizationfunction1(double p_v_norm,
+
+	double A_max, //  6000.0;
+	double A_min, // 500.0;
+
+	double new_A_max, // 1.0,
+	double new_A_min ) {// 0.0 // -1.0;
+
+	return (p_v_norm - new_A_min) * (A_max - A_min) / (new_A_max - new_A_min) + A_min;
+}
+
+
+N::N(std::initializer_list<int>& topol, double LearnRate, activationMethodchoosen act_method_received, std::tuple<double, double, double, double> normParam):
+	top{ topol }, LearnRate{ LearnRate }, act_method{ act_method_received }, normalizationParam { normParam }
 {
 
 	if (act_method == activationMethodchoosen::eins_durch_ehoch)
@@ -88,6 +112,13 @@ double N::calc() {
 	//
 	// Forward calculation
 	//
+
+	// 
+	// here I can normalize the input layer
+	//
+
+	//for (int n = 0; n < top[0]; ++n)
+		// 
 
 	/** Starts with layer 1 since layer 0 needs input but no calculation */
 	for (int nlay = 1; nlay < Nlay; ++nlay)
@@ -171,6 +202,5 @@ double N::calc() {
 N::~N() {
 
 	// to be done
-
 
 }
